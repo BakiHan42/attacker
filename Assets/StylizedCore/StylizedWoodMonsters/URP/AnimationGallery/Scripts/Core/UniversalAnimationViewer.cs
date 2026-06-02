@@ -170,115 +170,116 @@ public class UniversalAnimationViewer : MonoBehaviour
     public void RestartCurrentAnimation() =>
         animator.Play(currentAnimation, 0, 0f);
 
-    /// <summary>
-    /// Draws the on-screen UI with animation, camera
-    /// and texture set controls. Optimized for 1080p scaling.
-    /// </summary>
-    void OnGUI()
-    {
-        if (!showUI) return;
-
-        // Resolution-independent scaling matrix
-        float scale = Screen.height / 1080f;
-        Matrix4x4 oldMatrix = GUI.matrix;
-        GUI.matrix = Matrix4x4.TRS(Vector3.zero, Quaternion.identity, new Vector3(scale, scale, 1f));
-
-        float y = 15f;
-        float leftMargin = 30f;
-        float rightMargin = 20f;
-
-        // --- STYLES ---
-        GUIStyle titleStyle = new GUIStyle(GUI.skin.label)
+        /// <summary>
+        /// Draws the on-screen UI with animation, camera
+        /// and texture set controls. Optimized for 1080p scaling.
+        /// </summary>
+        /*void OnGUI()
         {
-            fontSize = 38,
-            fontStyle = FontStyle.Bold,
-            normal = { textColor = Color.yellow }
-        };
-        GUIStyle modelNameStyle = new GUIStyle(titleStyle)
-        {
-            fontSize = 32,
-            normal = { textColor = new Color(0.2f, 0.8f, 1f) }
-        };
-        GUIStyle infoStyle = new GUIStyle(GUI.skin.label)
-        {
-            fontSize = 20,
-            normal = { textColor = Color.white },
-            richText = true
-        };
+            if (!showUI) return;
 
-        // --- ALWAYS VISIBLE ELEMENTS (Titles) ---
-        // Animation State Title (Left)
-        GUI.Label(new Rect(leftMargin + 2, y + 2, 900, 55), $"▶ {currentAnimation}", new GUIStyle(titleStyle) { normal = { textColor = Color.black } });
-        GUI.Label(new Rect(leftMargin, y, 900, 55), $"▶ {currentAnimation}", titleStyle);
+            // Resolution-independent scaling matrix
+            float scale = Screen.height / 1080f;
+            Matrix4x4 oldMatrix = GUI.matrix;
+            GUI.matrix = Matrix4x4.TRS(Vector3.zero, Quaternion.identity, new Vector3(scale, scale, 1f));
 
-        // Model Information (Right)
-        if (cameraController != null && cameraController.GetTarget() != null)
-        {
-            float virtualWidth = Screen.width / scale;
-            float width = 500f;
-            float x = virtualWidth - width - rightMargin;
-            string modelName = cameraController.GetTarget().name;
+            float y = 15f;
+            float leftMargin = 30f;
+            float rightMargin = 20f;
 
-            // Model Name with Shadow
-            GUI.Label(new Rect(x + 2, 10, width, 55), modelName, new GUIStyle(modelNameStyle) { normal = { textColor = Color.black }, alignment = TextAnchor.UpperRight });
-            GUI.Label(new Rect(x, 8, width, 55), modelName, new GUIStyle(modelNameStyle) { alignment = TextAnchor.UpperRight });
-
-            // --- SKIN CONTROLS (Right side, hidden in Minimal Mode) ---
-            if (!minimalUI && textureSetController != null)
+            // --- STYLES ---
+            GUIStyle titleStyle = new GUIStyle(GUI.skin.label)
             {
-                string setText = $"Skin: {textureSetController.CurrentSet + 1} / {textureSetController.TotalSets}";
-                GUIStyle rightAlignTitle = new GUIStyle(titleStyle) { fontSize = 28, alignment = TextAnchor.UpperRight };
+                fontSize = 38,
+                fontStyle = FontStyle.Bold,
+                normal = { textColor = Color.yellow }
+            };
+            GUIStyle modelNameStyle = new GUIStyle(titleStyle)
+            {
+                fontSize = 32,
+                normal = { textColor = new Color(0.2f, 0.8f, 1f) }
+            };
+            GUIStyle infoStyle = new GUIStyle(GUI.skin.label)
+            {
+                fontSize = 20,
+                normal = { textColor = Color.white },
+                richText = true
+            };
 
-                GUI.Label(new Rect(x, 60, width, 40), setText, rightAlignTitle);
+            // --- ALWAYS VISIBLE ELEMENTS (Titles) ---
+            // Animation State Title (Left)
+            GUI.Label(new Rect(leftMargin + 2, y + 2, 900, 55), $"▶ {currentAnimation}", new GUIStyle(titleStyle) { normal = { textColor = Color.black } });
+            GUI.Label(new Rect(leftMargin, y, 900, 55), $"▶ {currentAnimation}", titleStyle);
 
-                GUIStyle rightAlignInfo = new GUIStyle(infoStyle) { alignment = TextAnchor.UpperRight };
-                GUI.Label(new Rect(x, 105, width, 70),
-                    "<b>Z</b> - Previous Skin\n" +
-                    "<b>X</b> - Next Skin",
-                    rightAlignInfo);
+            // Model Information (Right)
+            if (cameraController != null && cameraController.GetTarget() != null)
+            {
+                float virtualWidth = Screen.width / scale;
+                float width = 500f;
+                float x = virtualWidth - width - rightMargin;
+                string modelName = cameraController.GetTarget().name;
+
+                // Model Name with Shadow
+                GUI.Label(new Rect(x + 2, 10, width, 55), modelName, new GUIStyle(modelNameStyle) { normal = { textColor = Color.black }, alignment = TextAnchor.UpperRight });
+                GUI.Label(new Rect(x, 8, width, 55), modelName, new GUIStyle(modelNameStyle) { alignment = TextAnchor.UpperRight });
+
+                // --- SKIN CONTROLS (Right side, hidden in Minimal Mode) ---
+                if (!minimalUI && textureSetController != null)
+                {
+                    string setText = $"Skin: {textureSetController.CurrentSet + 1} / {textureSetController.TotalSets}";
+                    GUIStyle rightAlignTitle = new GUIStyle(titleStyle) { fontSize = 28, alignment = TextAnchor.UpperRight };
+
+                    GUI.Label(new Rect(x, 60, width, 40), setText, rightAlignTitle);
+
+                    GUIStyle rightAlignInfo = new GUIStyle(infoStyle) { alignment = TextAnchor.UpperRight };
+                    GUI.Label(new Rect(x, 105, width, 70),
+                        "<b>Z</b> - Previous Skin\n" +
+                        "<b>X</b> - Next Skin",
+                        rightAlignInfo);
+                }
             }
         }
 
         // --- CONTROL LISTS (Left side, hidden in Minimal Mode) ---
-        if (!minimalUI)
-        {
-            y += 80;
+        /* if (!minimalUI)
+         {
+             y += 80;
 
-            // Animation Section
-            GUI.Label(new Rect(leftMargin, y, 500, 200),
-                "<color=yellow>ANIMATION CONTROLS</color>\n" +
-                "<b>A</b> - Previous Animation\n" +
-                "<b>D</b> - Next Animation\n" +
-                "<b>SPACE</b> - Restart\n" +
-                "<b>P</b> - Pause / Resume",
-                infoStyle);
+             // Animation Section
+             GUI.Label(new Rect(leftMargin, y, 500, 200),
+                 "<color=yellow>ANIMATION CONTROLS</color>\n" +
+                 "<b>A</b> - Previous Animation\n" +
+                 "<b>D</b> - Next Animation\n" +
+                 "<b>SPACE</b> - Restart\n" +
+                 "<b>P</b> - Pause / Resume",
+                 infoStyle);
 
-            y += 180;
+             y += 180;
 
-            // Camera Section
-            GUI.Label(new Rect(leftMargin, y, 500, 420),
-                "<color=yellow>CAMERA CONTROLS</color>\n" +
-                "<b>Q / E</b> - Rotate Orbit\n" +
-                "<b>W / S</b> - Zoom In/Out\n" +
-                "<b>↑ / ↓</b> - Height\n" +
-                "<b>← / →</b> - Side Pan\n" +
-                "<b>R</b> - Reset View\n" +
-                "<b>C</b> - Toggle Auto-Rotate\n" +
-                "<b>V</b> - Start Presentation\n" +
-                "<b>H</b> - Hide All UI\n" +
-                "<b>L</b> - Minimal Mode",
-                infoStyle);
-        }
+             // Camera Section
+             GUI.Label(new Rect(leftMargin, y, 500, 420),
+                 "<color=yellow>CAMERA CONTROLS</color>\n" +
+                 "<b>Q / E</b> - Rotate Orbit\n" +
+                 "<b>W / S</b> - Zoom In/Out\n" +
+                 "<b>↑ / ↓</b> - Height\n" +
+                 "<b>← / →</b> - Side Pan\n" +
+                 "<b>R</b> - Reset View\n" +
+                 "<b>C</b> - Toggle Auto-Rotate\n" +
+                 "<b>V</b> - Start Presentation\n" +
+                 "<b>H</b> - Hide All UI\n" +
+                 "<b>L</b> - Minimal Mode",
+                 infoStyle);
+         }
 
-        GUI.matrix = oldMatrix;
-    }
+         GUI.matrix = oldMatrix;
+     }
 
-    /// <summary>
-    /// Updates animator, texture controller and camera
-    /// when a new enemy is activated.
-    /// </summary>
-    /// <param name="enemy">Enemy GameObject to activate.</param>
-    public void SetActiveEnemy(GameObject enemy)
+     /// <summary>
+     /// Updates animator, texture controller and camera
+     /// when a new enemy is activated.
+     /// </summary>
+     /// <param name="enemy">Enemy GameObject to activate.</param>*/        
+        public void SetActiveEnemy(GameObject enemy)
     {
         animator = enemy.GetComponentInChildren<Animator>();
         textureSetController = enemy.GetComponentInChildren<TextureSetController>();
