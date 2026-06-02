@@ -9,6 +9,7 @@ public class PickupController : MonoBehaviour
     [SerializeField] private float throwForce = 500f;
     [SerializeField] private float rotationSensitivity = 1f;
 
+    private FPController_CC _fpController;
     private Collider _playerCollider;
     private GameObject _heldObj;
     private Rigidbody _heldObjRb;
@@ -21,8 +22,9 @@ public class PickupController : MonoBehaviour
     {
         Instance = this;
         _holdLayer = LayerMask.NameToLayer("holdLayer");
-        // Camera is a child of the player root that has the CharacterController
         _playerCollider = GetComponentInParent<CharacterController>();
+        _fpController = GetComponentInParent<FPController_CC>();
+        _fpController ??= FindFirstObjectByType<FPController_CC>();
     }
 
     private void OnEnable()
@@ -62,6 +64,7 @@ public class PickupController : MonoBehaviour
         _heldObjRb.isKinematic = true;
         _heldObj.transform.SetParent(holdPos);
         _heldObj.layer = _holdLayer;
+        _heldObj.GetComponent<Interactable>()?.DisableInteraction();
 
         if (_playerCollider != null)
             Physics.IgnoreCollision(_heldObj.GetComponent<Collider>(), _playerCollider, true);
@@ -95,6 +98,7 @@ public class PickupController : MonoBehaviour
         if (rotateHeld)
         {
             _canDrop = false;
+            _fpController?.SetLookLocked(true);
             Vector2 look = InputManager.Instance != null ? InputManager.Instance.Look : Vector2.zero;
             _heldObj.transform.Rotate(Vector3.down, look.x * rotationSensitivity);
             _heldObj.transform.Rotate(Vector3.right, look.y * rotationSensitivity);
@@ -102,6 +106,7 @@ public class PickupController : MonoBehaviour
         else
         {
             _canDrop = true;
+            _fpController?.SetLookLocked(false);
         }
     }
 
@@ -112,6 +117,8 @@ public class PickupController : MonoBehaviour
         _heldObj.layer = 0;
         _heldObjRb.isKinematic = false;
         _heldObj.transform.SetParent(null);
+        _heldObj.GetComponent<Interactable>()?.EnableInteraction();
+        _fpController?.SetLookLocked(false);
         _heldObj = null;
         _heldObjRb = null;
     }
@@ -123,7 +130,9 @@ public class PickupController : MonoBehaviour
         _heldObj.layer = 0;
         _heldObjRb.isKinematic = false;
         _heldObj.transform.SetParent(null);
-        _heldObjRb.AddForce(transform.forward * throwForce);
+        _heldObj.GetComponent<Interactable>()?.EnableInteraction();
+        _fpController?.SetLookLocked(false);
+        _heldObjRb.AddForce(holdPos.forward * throwForce);
         _heldObj = null;
         _heldObjRb = null;
     }

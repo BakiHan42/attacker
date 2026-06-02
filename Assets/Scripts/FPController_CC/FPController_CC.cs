@@ -219,6 +219,7 @@ public class FPController_CC : MonoBehaviour
         _axisController = cameraTransform
             ? cameraTransform.GetComponentInParent<CinemachineInputAxisController>()
             : null;
+        _axisController ??= FindFirstObjectByType<CinemachineInputAxisController>();
 
         LoadSensitivity();
     }
@@ -599,6 +600,12 @@ public class FPController_CC : MonoBehaviour
     // ──────────────────────────────────────────────────────────────
     // Sensitivity (Cinemachine axis gain)
     // ──────────────────────────────────────────────────────────────
+
+    public void SetLookLocked(bool locked)
+    {
+        if (_axisController != null)
+            _axisController.enabled = !locked;
+    }
 
     public void SetSensitivity(float value)
     {
