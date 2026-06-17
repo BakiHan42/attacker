@@ -4,9 +4,8 @@ using UnityEngine;
 public enum Speaker
 {
     Player,
-    CharacterA,
     Narrator,
-    Leyla
+    Dad
 }
 
 public enum Expression

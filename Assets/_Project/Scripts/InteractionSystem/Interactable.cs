@@ -53,6 +53,9 @@ public class Interactable : MonoBehaviour, IInteractable, IHasInteractionPromptD
     public void EnableInteraction() => isEnabled = true;
     public void DisableInteraction() => isEnabled = false;
 
+    public virtual void OnPickedUp() { }
+    public virtual void OnDropped() { }
+
     public InteractionPromptData GetInteractionPromptData()
     {
         return new InteractionPromptData(
