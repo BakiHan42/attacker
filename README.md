@@ -6,29 +6,38 @@ Unity game project.
 
 - **Unity `6000.3.16f1`** — everyone must use this exact version. A different
   version silently re-imports/re-serializes assets and creates noisy conflicts.
-- **Git LFS** — large binary assets (textures, models, audio, archives) are
-  stored in LFS. You must have it installed or you'll get pointer files instead
-  of real assets.
+- **GitHub Desktop** — clone and push with this; Git LFS is bundled and works
+  automatically, no extra steps needed for binaries.
 
 ## First-time setup
 
-Run once per machine after cloning:
+### 1. Clone with GitHub Desktop
 
+Open GitHub Desktop → **File → Clone repository** → paste the repo URL.
+GitHub Desktop will handle Git LFS automatically and download all assets.
+
+### 2. Configure Unity SmartMerge (one-time, requires terminal)
+
+This makes scene/prefab merges semantic instead of corrupting them.
+Open **Git Bash** (Windows) or **Terminal** (Mac) and run:
+
+**Windows** (Git Bash):
 ```bash
-# 1. Install Git LFS hooks (pulls real binaries, not pointers)
-git lfs install
-git lfs pull
-
-# 2. Configure Unity SmartMerge so scene/prefab merges don't corrupt
-#    (adjust the path to your Unity install)
-git config merge.unityyamlmerge.name "Unity SmartMerge"
-git config merge.unityyamlmerge.driver \
-  "'/path/to/Editor/Data/Tools/UnityYAMLMerge' merge -p %O %B %A %A"
-git config merge.unityyamlmerge.recursive binary
+git config --global merge.unityyamlmerge.name "Unity SmartMerge"
+git config --global merge.unityyamlmerge.driver \
+  "'C:/Program Files/Unity/Hub/Editor/6000.3.16f1/Editor/Data/Tools/UnityYAMLMerge.exe' merge -p %O %B %A %A"
+git config --global merge.unityyamlmerge.recursive binary
 ```
 
-The UnityYAMLMerge tool ships with the editor, e.g. on Linux:
-`<UnityInstall>/6000.3.16f1/Editor/Data/Tools/UnityYAMLMerge`.
+**Mac** (Terminal):
+```bash
+git config --global merge.unityyamlmerge.name "Unity SmartMerge"
+git config --global merge.unityyamlmerge.driver \
+  "'/Applications/Unity/Hub/Editor/6000.3.16f1/Unity.app/Contents/Tools/UnityYAMLMerge' merge -p %O %B %A %A"
+git config --global merge.unityyamlmerge.recursive binary
+```
+
+You only run this once. GitHub Desktop will use it automatically after that.
 
 ## Project structure
 
@@ -49,8 +58,10 @@ Assets/
 
 ## Working together (please read)
 
-- **Branch off `main`**, open a **Pull Request**; don't push straight to `main`.
-- **Pull/merge `main` often.** Small frequent merges beat one giant divergence.
+- **Create a branch** in GitHub Desktop before starting work → open a
+  **Pull Request** on GitHub when done; don't push straight to `main`.
+- **Fetch/pull `main` often** (GitHub Desktop: **Fetch origin** button).
+  Small frequent merges beat one giant divergence.
 - **Scenes & prefabs are hard to merge.** Coordinate: only one person edits a
   given scene at a time, or split big scenes into additive sub-scenes / prefabs.
   SmartMerge helps but is not magic.
