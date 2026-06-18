@@ -5668,7 +5668,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6879498132067112100, guid: 57733b580dbb1d76e9b4f0a112789afc, type: 3}
       propertyPath: m_text
-      value: GAME TITLE
+      value: Between Stops
       objectReference: {fileID: 0}
     - target: {fileID: 6879498132067112100, guid: 57733b580dbb1d76e9b4f0a112789afc, type: 3}
       propertyPath: m_fontSize
