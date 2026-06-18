@@ -5,7 +5,9 @@ public enum Speaker
 {
     Player,
     Narrator,
-    Dad
+    Dad,
+    Friend,
+    Dog
 }
 
 public enum Expression

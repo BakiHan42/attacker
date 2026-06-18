@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using UnityEngine;
 using TMPro;
@@ -5,6 +6,12 @@ using UnityEngine.UI;
 
 public class DialogueManager : MonoBehaviour
 {
+    /// <summary>
+    /// Fired when any dialogue finishes its last line. Global listeners can subscribe here.
+    /// For per-dialogue reactions (e.g. boost gating), pass an onComplete callback to StartDialogue.
+    /// </summary>
+    public event Action OnDialogueComplete;
+
     [Header("UI")]
     [SerializeField] private GameObject dialogueUI;
     [SerializeField] private Animator dialogueAnimator;
@@ -35,6 +42,9 @@ public class DialogueManager : MonoBehaviour
 
     private Character currentCharacter;
 
+    // Per-dialogue completion callback, supplied by the caller of StartDialogue.
+    private Action _onCompleteCallback;
+
     private void Awake()
     {
         voiceSource = GetComponent<AudioSource>();
@@ -56,10 +66,12 @@ public class DialogueManager : MonoBehaviour
         InputManager.Instance.OnAdvance -= OnAdvance;
     }
 
-    public void StartDialogue(Dialogue[] newLines)
+    public void StartDialogue(Dialogue[] newLines, Action onComplete = null)
     {
         if (IsDialogueActive || newLines == null || newLines.Length == 0)
             return;
+
+        _onCompleteCallback = onComplete;
 
         InputManager.Instance.SwitchToUI();
 
@@ -221,12 +233,12 @@ public class DialogueManager : MonoBehaviour
         if (Time.time - lastBlipTime < blipCooldown)
             return;
 
-        voiceSource.pitch = Random.Range(
+        voiceSource.pitch = UnityEngine.Random.Range(
             currentCharacter.minPitch,
             currentCharacter.maxPitch
         );
 
-        voiceSource.PlayOneShot(currentCharacter.voiceBlips[Random.Range(0,currentCharacter.voiceBlips.Length)]);
+        voiceSource.PlayOneShot(currentCharacter.voiceBlips[UnityEngine.Random.Range(0,currentCharacter.voiceBlips.Length)]);
         lastBlipTime = Time.time;
     }
 
@@ -238,6 +250,11 @@ public class DialogueManager : MonoBehaviour
         dialogueAnimator.SetBool("IsOpen", false);
         InputManager.Instance.SwitchToGameplay();
 
+        // Fire the per-dialogue callback first (e.g. boost gating), then the global event.
+        Action callback = _onCompleteCallback;
+        _onCompleteCallback = null;
+        callback?.Invoke();
+        OnDialogueComplete?.Invoke();
     }
 
     private Character GetCharacter(Speaker speaker)
