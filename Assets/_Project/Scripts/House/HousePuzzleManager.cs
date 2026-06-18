@@ -14,9 +14,23 @@ public class HousePuzzleManager : MonoBehaviour
     [Header("Events")]
     [SerializeField] private UnityEvent onAllComplete;
 
+    [Header("Train")]
+    [Tooltip("How many train pieces must be placed before the train task counts as done.")]
+    [SerializeField] private int trainPieceCount = 3;
+
     private bool _trainDone;
     private bool _photoDone;
     private bool _boneDone;
+    private int _trainPiecesPlaced;
+
+    // Called by each train TrackSlot.onItemPlaced — marks the train task done once all pieces are in.
+    public void NotifyTrainPiecePlaced()
+    {
+        if (_trainDone) return;
+        _trainPiecesPlaced++;
+        if (_trainPiecesPlaced >= trainPieceCount)
+            CompleteTrainPuzzle();
+    }
 
     public void CompleteTrainPuzzle()
     {

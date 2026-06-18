@@ -14,6 +14,11 @@ public class InventoryItem : PickupInteractable
     [Tooltip("Unique item identifier checked by LockedDoor. Leave empty to skip inventory tracking.")]
     [SerializeField] private string itemKey;
 
+    [Tooltip("When set, dropping the item also removes it from the inventory, so anything " +
+             "gated on it (e.g. LockedDoor) requires the item to be currently held. Leave off " +
+             "for items that should stay collected once picked up.")]
+    [SerializeField] private bool removeFromInventoryOnDrop;
+
     public string ItemKey => itemKey;
 
     public override void OnPickedUp()
@@ -26,7 +31,10 @@ public class InventoryItem : PickupInteractable
     public override void OnDropped()
     {
         base.OnDropped();
-        // Keep the item registered even when dropped — once collected, it stays in
-        // inventory. Physical drop just means the player is no longer holding it.
+        // By default the item stays registered once collected — physical drop just means the
+        // player is no longer holding it. When removeFromInventoryOnDrop is set (e.g. the metro
+        // card), dropping de-registers it so the player must be holding it to pass its gate.
+        if (removeFromInventoryOnDrop && !string.IsNullOrEmpty(itemKey) && Inventory.Instance != null)
+            Inventory.Instance.Remove(itemKey);
     }
 }

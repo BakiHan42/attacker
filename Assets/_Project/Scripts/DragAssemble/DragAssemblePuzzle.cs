@@ -40,12 +40,10 @@ public class DragAssemblePuzzle : MonoBehaviour
     public bool IsComplete { get; private set; }
     public bool IsOpen     { get; private set; }
 
-    private void Awake()
-    {
-        if (puzzleCanvas != null)
-            puzzleCanvas.SetActive(false);
-        // Piece init deferred to Open() — Awake doesn't run on inactive GameObjects.
-    }
+    // NOTE: keep the puzzle canvas INACTIVE in the scene. We deliberately do NOT disable it from
+    // Awake — this controller lives on the canvas GameObject, so its Awake first runs the instant
+    // Open() calls SetActive(true). Disabling here would immediately switch the canvas back off
+    // (which made the puzzle appear to "not open"). Piece init is deferred to Open() anyway.
 
     private void Update()
     {

@@ -10,13 +10,19 @@ public class PickupController : MonoBehaviour
     [SerializeField] private float rotationSensitivity = 1f;
 
     private FPController_CC _fpController;
+    private Interactor _interactor;
     private Collider _playerCollider;
     private GameObject _heldObj;
     private Rigidbody _heldObjRb;
     private bool _canDrop = true;
     private int _holdLayer;
+    private int _pickupFrame = -1;
 
     public bool IsHolding => _heldObj != null;
+
+    /// <summary>The <see cref="InventoryItem"/> currently held, or null. Lets placement slots
+    /// check what the player is carrying without reflecting into private state.</summary>
+    public InventoryItem HeldItem => _heldObj != null ? _heldObj.GetComponent<InventoryItem>() : null;
 
     private void Awake()
     {
@@ -25,6 +31,7 @@ public class PickupController : MonoBehaviour
         _playerCollider = GetComponentInParent<CharacterController>();
         _fpController = GetComponentInParent<FPController_CC>();
         _fpController ??= FindFirstObjectByType<FPController_CC>();
+        _interactor = GetComponent<Interactor>();
     }
 
     private void OnEnable()
@@ -61,6 +68,7 @@ public class PickupController : MonoBehaviour
 
         _heldObj = obj;
         _heldObjRb = rb;
+        _pickupFrame = Time.frameCount;
         _heldObjRb.isKinematic = true;
         _heldObj.transform.SetParent(holdPos);
         _heldObj.layer = _holdLayer;
@@ -76,9 +84,28 @@ public class PickupController : MonoBehaviour
 
     private void HandleInteractOrDrop()
     {
-        if (_heldObj == null || !_canDrop) return;
+        // Pickup and drop both listen to OnInteract. When the Interactor picks an item up,
+        // this handler fires on the same input event — ignore that frame so we don't
+        // immediately drop what we just grabbed.
+        if (_heldObj == null || !_canDrop || Time.frameCount == _pickupFrame) return;
+
+        // If the player is looking at something interactable (e.g. a placement slot), let that
+        // interaction handle E instead of dropping the held item.
+        if (_interactor != null && _interactor.FocusedInteractable != null &&
+            _interactor.FocusedInteractable.CanInteract()) return;
+
         StopClipping();
         DropObject();
+    }
+
+    /// <summary>Detaches and returns the currently held object without throwing it (used by
+    /// placement slots that snap the item into place). Returns null if nothing is held.</summary>
+    public GameObject ReleaseHeld()
+    {
+        if (_heldObj == null) return null;
+        GameObject obj = _heldObj;
+        DropObject();
+        return obj;
     }
 
     private void HandleThrow()
