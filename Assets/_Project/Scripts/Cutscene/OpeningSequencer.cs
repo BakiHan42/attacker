@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using Unity.Cinemachine;
 using UnityEngine;
 using UnityEngine.Events;
@@ -42,7 +43,7 @@ public class OpeningSequencer : MonoBehaviour
 
     [Header("Scene References")]
     [SerializeField] private ScreenFader fader;
-    [SerializeField] private MetroDoor   door;
+    [SerializeField] private List<MetroDoor> doors;
 
     [Header("Timing")]
     [SerializeField] private float eyeOpenDuration    = 2.0f;
@@ -154,8 +155,8 @@ public class OpeningSequencer : MonoBehaviour
         // ── 7. Metro decelerates and stops (sway fades out — handled above) ───
         yield return new WaitForSeconds(doorOpenDelay);
 
-        // ── 8. Door opens ─────────────────────────────────────────────────────
-        door?.Open();
+        // ── 8. Doors open ────────────────────────────────────────────────────
+        foreach (var d in doors) d?.Open();
 
         onCutsceneEnd?.Invoke();
     }
