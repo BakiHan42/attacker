@@ -135,6 +135,17 @@ public class FPController_CC : MonoBehaviour
     // Vertical motion is tracked manually; CharacterController does not handle gravity for you.
     private float _verticalVelocity;
 
+    // Boost multipliers (1.0 = no boost). Set by BoostZone; restored to 1 on exit.
+    private float _speedBoostMultiplier = 1f;
+    private float _jumpBoostMultiplier  = 1f;
+
+    // Moving-platform support. Velocity is accumulated during OnControllerColliderHit
+    // (which fires inside Move()) and carried into the next frame's ApplyMotion.
+    // _hadPlatformHit tracks whether a platform was touched THIS frame so we can
+    // clear the velocity one frame after the player leaves the platform.
+    private Vector3 _platformVelocity;
+    private bool    _hadPlatformHit;
+
     // Jump feel helpers
     private float _coyoteTimer;
     private float _jumpBufferTimer;
@@ -240,6 +251,13 @@ public class FPController_CC : MonoBehaviour
 
     private void Update()
     {
+        // Clear platform velocity if we weren't touching a platform last frame.
+        // _hadPlatformHit was set by OnControllerColliderHit during the PREVIOUS Move(),
+        // so this check correctly represents last frame's contact state.
+        if (!_hadPlatformHit)
+            _platformVelocity = Vector3.zero;
+        _hadPlatformHit = false;
+
         ReadInput();
         CheckGrounded();
         ResolveState();
@@ -477,7 +495,8 @@ public class FPController_CC : MonoBehaviour
     private float GetTargetSpeed()
     {
         if (Grounded && _input.crouchHeld) return crouchSpeed;
-        return _input.sprintHeld ? sprintSpeed : walkSpeed;
+        float base_ = _input.sprintHeld ? sprintSpeed : walkSpeed;
+        return base_ * _speedBoostMultiplier;
     }
 
     private Vector3 ComputeMoveDirection(Vector2 input)
@@ -581,8 +600,10 @@ public class FPController_CC : MonoBehaviour
     private void ExecuteJump()
     {
         // v = sqrt(h * -2 * g)
-        // Choose the exact upward velocity needed to reach the desired apex height.
-        _verticalVelocity = Mathf.Sqrt(jumpHeight * -2f * gravity);
+        // jumpHeight is scaled by the boost multiplier; squaring it into the formula gives
+        // a correct apex (doubling jumpHeight gives double the height, not double velocity).
+        float boostedHeight = jumpHeight * _jumpBoostMultiplier;
+        _verticalVelocity = Mathf.Sqrt(boostedHeight * -2f * gravity);
 
         _jumpBufferTimer = 0f;
         _hasJumped       = true;
@@ -593,8 +614,24 @@ public class FPController_CC : MonoBehaviour
     private void ApplyMotion()
     {
         // CharacterController.Move expects a displacement, not a velocity.
-        Vector3 velocity = MoveDir * Speed + Vector3.up * _verticalVelocity;
+        // _platformVelocity is the moving platform's world-space velocity from last frame;
+        // it is zero when the player is not on a platform.
+        Vector3 velocity = MoveDir * Speed + Vector3.up * _verticalVelocity + _platformVelocity;
         _controller.Move(velocity * Time.deltaTime);
+    }
+
+    // Called by Unity during _controller.Move() whenever the capsule touches geometry.
+    private void OnControllerColliderHit(ControllerColliderHit hit)
+    {
+        // Only care about surfaces below us (the player is standing on them).
+        if (hit.moveDirection.y >= -0.3f) return;
+
+        var platform = hit.collider.GetComponentInParent<MovingPlatform>();
+        if (platform != null)
+        {
+            _platformVelocity = platform.Velocity;
+            _hadPlatformHit   = true;
+        }
     }
 
     // ──────────────────────────────────────────────────────────────
@@ -605,6 +642,27 @@ public class FPController_CC : MonoBehaviour
     {
         if (_axisController != null)
             _axisController.enabled = !locked;
+    }
+
+    /// <summary>Multiplies walk and sprint speeds. 1.0 = no boost.</summary>
+    public void SetSpeedBoost(float multiplier) => _speedBoostMultiplier = multiplier;
+
+    /// <summary>Multiplies jump height. 1.0 = no boost.</summary>
+    public void SetJumpBoost(float multiplier) => _jumpBoostMultiplier = multiplier;
+
+    /// <summary>
+    /// Instantly moves the controller to a world position (used for respawn / checkpoints).
+    /// The CharacterController is temporarily disabled so the move isn't rejected by collision,
+    /// and vertical velocity is cleared so the player doesn't keep falling after respawning.
+    /// </summary>
+    public void Teleport(Vector3 position)
+    {
+        bool wasEnabled = _controller.enabled;
+        _controller.enabled = false;
+        transform.position = position;
+        _controller.enabled = wasEnabled;
+
+        _verticalVelocity = 0f;
     }
 
     public void SetSensitivity(float value)

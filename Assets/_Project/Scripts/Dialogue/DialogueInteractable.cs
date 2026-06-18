@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Events;
 
 public class DialogueInteractable : Interactable
 {
@@ -7,6 +8,9 @@ public class DialogueInteractable : Interactable
 
     [SerializeField, Tooltip("Use '|' inside dialogue lines to add a short pause. TMP tags like <i> and <b> are supported.")]
     private Dialogue[] dialogue;
+
+    [Tooltip("Fired when THIS dialogue finishes its last line. Boost zones hook into this (boost gating rule).")]
+    [SerializeField] private UnityEvent onDialogueComplete;
 
     private bool hasPlayed = false;
 
@@ -51,7 +55,7 @@ public class DialogueInteractable : Interactable
             return false;
         }
 
-        dialogueManager.StartDialogue(dialogue);
+        dialogueManager.StartDialogue(dialogue, () => onDialogueComplete?.Invoke());
         hasPlayed = true;
         RefreshIcon();
         return true;
