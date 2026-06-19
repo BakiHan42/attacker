@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using Unity.Cinemachine;
 
@@ -135,9 +136,15 @@ public class FPController_CC : MonoBehaviour
     // Vertical motion is tracked manually; CharacterController does not handle gravity for you.
     private float _verticalVelocity;
 
-    // Boost multipliers (1.0 = no boost). Set by BoostZone; restored to 1 on exit.
+    // Boost multipliers (1.0 = no boost). These hold the CURRENT effective value (top of the
+    // stack below) and are read by the movement/jump calc. Boosts stack so independent sources
+    // — e.g. a permanent pickup boost (the letter) and a temporary BoostZone — don't clobber
+    // each other: applying a boost pushes, and a BoostZone's restore-to-1 on exit only pops its
+    // own boost, leaving any boost still underneath intact.
     private float _speedBoostMultiplier = 1f;
     private float _jumpBoostMultiplier  = 1f;
+    private readonly List<float> _speedBoostStack = new List<float>();
+    private readonly List<float> _jumpBoostStack  = new List<float>();
 
     // Moving-platform support. Velocity is accumulated during OnControllerColliderHit
     // (which fires inside Move()) and carried into the next frame's ApplyMotion.
@@ -644,11 +651,36 @@ public class FPController_CC : MonoBehaviour
             _axisController.enabled = !locked;
     }
 
-    /// <summary>Multiplies walk and sprint speeds. 1.0 = no boost.</summary>
-    public void SetSpeedBoost(float multiplier) => _speedBoostMultiplier = multiplier;
+    /// <summary>
+    /// Multiplies walk and sprint speeds. Boosts stack: pass a multiplier &gt; 1 to apply one,
+    /// or 1.0 to remove the most recently applied boost (restoring any boost still underneath).
+    /// </summary>
+    public void SetSpeedBoost(float multiplier) =>
+        _speedBoostMultiplier = ApplyBoostStack(_speedBoostStack, multiplier);
 
-    /// <summary>Multiplies jump height. 1.0 = no boost.</summary>
-    public void SetJumpBoost(float multiplier) => _jumpBoostMultiplier = multiplier;
+    /// <summary>
+    /// Multiplies jump height. Boosts stack: pass a multiplier &gt; 1 to apply one, or 1.0 to
+    /// remove the most recently applied boost (restoring any boost still underneath).
+    /// </summary>
+    public void SetJumpBoost(float multiplier) =>
+        _jumpBoostMultiplier = ApplyBoostStack(_jumpBoostStack, multiplier);
+
+    // Push/pop helper shared by both boost setters. A value of ~1 is the "remove" signal and
+    // pops the most recent boost; any other value is a new boost pushed on top. Returns the new
+    // effective multiplier (top of the stack, or 1 when empty).
+    private static float ApplyBoostStack(List<float> stack, float multiplier)
+    {
+        if (Mathf.Approximately(multiplier, 1f))
+        {
+            if (stack.Count > 0)
+                stack.RemoveAt(stack.Count - 1);
+        }
+        else
+        {
+            stack.Add(multiplier);
+        }
+        return stack.Count > 0 ? stack[stack.Count - 1] : 1f;
+    }
 
     /// <summary>
     /// Instantly moves the controller to a world position (used for respawn / checkpoints).

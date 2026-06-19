@@ -20,8 +20,8 @@ public class DogInteractable : MonoBehaviour, IInteractable, IHasInteractionProm
     [SerializeField] private Dialogue[] secondDialogue;
 
     [Header("Alternate Path")]
-    [Tooltip("GameObjects that form the alternate (passable) parkour. Disabled by default, enabled on 2nd interaction.")]
-    [SerializeField] private GameObject[] alternatePath;
+    [Tooltip("The alternate (passable) parkour root. Keep it inactive in the scene; it is activated on the 2nd interaction.")]
+    [SerializeField] private GameObject alternatePath;
 
     [Header("Bark Loop")]
     [SerializeField] private AudioSource barkSource;
@@ -43,9 +43,6 @@ public class DogInteractable : MonoBehaviour, IInteractable, IHasInteractionProm
     private void Awake()
     {
         _dm = FindAnyObjectByType<DialogueManager>();
-        // Alternate path starts hidden
-        foreach (var go in alternatePath)
-            if (go != null) go.SetActive(false);
     }
 
     public bool CanInteract()
@@ -109,7 +106,6 @@ public class DogInteractable : MonoBehaviour, IInteractable, IHasInteractionProm
 
     private void ActivateAlternatePath()
     {
-        foreach (var go in alternatePath)
-            if (go != null) go.SetActive(true);
+        if (alternatePath != null) alternatePath.SetActive(true);
     }
 }
