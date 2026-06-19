@@ -18346,7 +18346,7 @@ Transform:
   m_GameObject: {fileID: 894287980}
   serializedVersion: 2
   m_LocalRotation: {x: -0.00069415936, y: 0.0012239269, z: -0.00328408, w: 0.9999936}
-  m_LocalPosition: {x: 21.000652, y: 14.185577, z: -0.25385582}
+  m_LocalPosition: {x: 20.999, y: 12.06, z: -0.253}
   m_LocalScale: {x: 0.10023274, y: 0.7997515, z: 0.13734259}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -23625,15 +23625,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4041130435373547787, guid: f8bf7796d6e183c85a2b3323ca2f5ede, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 16.440853
+      value: 14.877
       objectReference: {fileID: 0}
     - target: {fileID: 4041130435373547787, guid: f8bf7796d6e183c85a2b3323ca2f5ede, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 15.498404
+      value: 15.58
       objectReference: {fileID: 0}
     - target: {fileID: 4041130435373547787, guid: f8bf7796d6e183c85a2b3323ca2f5ede, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -1.0148321
+      value: -1.01
       objectReference: {fileID: 0}
     - target: {fileID: 4041130435373547787, guid: f8bf7796d6e183c85a2b3323ca2f5ede, type: 3}
       propertyPath: m_LocalRotation.w
@@ -23673,7 +23673,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7387897721848104824, guid: f8bf7796d6e183c85a2b3323ca2f5ede, type: 3}
       propertyPath: waypoints.Array.data[0].x
-      value: 365.77
+      value: 345
       objectReference: {fileID: 0}
     - target: {fileID: 7387897721848104824, guid: f8bf7796d6e183c85a2b3323ca2f5ede, type: 3}
       propertyPath: waypoints.Array.data[0].y
@@ -36776,15 +36776,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4041130435373547787, guid: f8bf7796d6e183c85a2b3323ca2f5ede, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 34.71923
+      value: 33.919
       objectReference: {fileID: 0}
     - target: {fileID: 4041130435373547787, guid: f8bf7796d6e183c85a2b3323ca2f5ede, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 13.652237
+      value: 13.69
       objectReference: {fileID: 0}
     - target: {fileID: 4041130435373547787, guid: f8bf7796d6e183c85a2b3323ca2f5ede, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -0.04711779
+      value: -0.044
       objectReference: {fileID: 0}
     - target: {fileID: 4041130435373547787, guid: f8bf7796d6e183c85a2b3323ca2f5ede, type: 3}
       propertyPath: m_LocalRotation.w
@@ -36824,7 +36824,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7387897721848104824, guid: f8bf7796d6e183c85a2b3323ca2f5ede, type: 3}
       propertyPath: waypoints.Array.data[0].x
-      value: 547.25
+      value: 535.7
       objectReference: {fileID: 0}
     - target: {fileID: 7387897721848104824, guid: f8bf7796d6e183c85a2b3323ca2f5ede, type: 3}
       propertyPath: waypoints.Array.data[0].y
